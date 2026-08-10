@@ -28,10 +28,8 @@ const COLUMNS = [
   'College / University',
   'Degree / Course Pursuing',
   'Selected Course',
-  'Base Price (INR)',
   'Coupon Code',
   'Coupon Applied',
-  'Final Price (INR)',
   'Submitted At (Client ISO)'
 ];
 
