@@ -1,10 +1,6 @@
 /* =========================================================
-   GT BHARAT - Light theme design system
-   Super-light background, purple accent, semi-bold headings.
-   Header: logo only. No mentor section. No pricing shown in form.
-   Coupon (DGGTSAVE) banners appear in multiple sections.
-   Course cards are fully clickable and stay in sync with the
-   compact toggle at the top of the registration form.
+   GT BHARAT / DGTL - Light theme design system
+   Added course-tab separators for desktop + mobile.
 ========================================================= */
 
 :root {
@@ -117,15 +113,14 @@ ul { list-style: none; }
   align-items: center;
 }
 
-.brand-logo { height: 32px; width: auto; }
-
-.brand {
+.brand,
+.brand:visited {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
 }
-
+.brand-logo { height: 32px; width: auto; }
 .brand-dgtl {
   font-family: 'Poppins', 'Inter', sans-serif;
   font-weight: 500;
@@ -269,11 +264,7 @@ ul { list-style: none; }
 }
 .pricing-grid .price-card.reveal:nth-child(2) { transition-delay: 0.12s; }
 
-/* ============ COURSE COMPARISON CARDS (no pricing shown) ============
-   Both cards share the same border color, same box-shadow, and the same
-   hover behaviour. Only the background is different for the featured
-   card (kept intentionally, per feedback) — no extra glow, no scale
-   difference, so neither card looks more "important" than the other. */
+/* ============ COURSE COMPARISON CARDS ============ */
 .pricing-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -308,8 +299,6 @@ ul { list-style: none; }
   border-color: var(--accent-purple);
   box-shadow: var(--shadow-card-hover);
 }
-
-/* Background differentiator only — kept as requested */
 .price-card-featured {
   background: linear-gradient(160deg, #FAF7FF 0%, #F3EEFC 100%);
 }
@@ -380,7 +369,7 @@ ul { list-style: none; }
   transform: rotate(45deg);
 }
 
-/* ============ PLACEMENT HIGHLIGHT (after separator, prominent) ============ */
+/* ============ PLACEMENT HIGHLIGHT ============ */
 .placement-divider {
   border: none;
   border-top: 1px solid var(--border-subtle);
@@ -388,21 +377,19 @@ ul { list-style: none; }
 }
 .placement-highlight {
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-primary);
   margin-bottom: 28px;
 }
 .placement-highlight-strong {
   font-size: 1.02rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--accent-purple-dark);
 }
 
 .btn-block { width: 100%; }
 
-/* ============ BUTTONS ============
-   Both course buttons use the same outline style — no purple fill on
-   either, so the "Choose" buttons read as equally weighted actions. */
+/* ============ BUTTONS ============ */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -517,23 +504,24 @@ fieldset { border: none; padding: 0; margin: 0 0 20px 0; }
 
 .course-select-field legend { margin-bottom: 10px; }
 
-/* ============ COMPACT COURSE TOGGLE (top of form) ============ */
+/* ============ COMPACT COURSE TOGGLE ============ */
 .course-toggle-group {
   display: flex;
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 4px;
-  gap: 4px;
+  border-radius: 18px;
+  padding: 5px;
+  gap: 5px;
 }
 .course-toggle {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 12px 14px;
-  border-radius: calc(var(--radius-full) - 4px);
+  border-radius: 14px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.88rem;
@@ -545,7 +533,18 @@ fieldset { border: none; padding: 0; margin: 0 0 20px 0; }
   background: var(--gradient-brand);
   color: #FFFFFF;
   box-shadow: 0 4px 14px rgba(124,58,237,0.3);
+  transform: translateY(-1px);
 }
+.course-toggle-group .course-toggle + .course-toggle::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 1px;
+  background: var(--border-subtle);
+}
+.course-toggle-name { line-height: 1.1; }
 
 .coupon-box {
   background: var(--bg-elevated);
@@ -694,9 +693,7 @@ fieldset { border: none; padding: 0; margin: 0 0 20px 0; }
 }
 .modal-close:hover { color: var(--text-primary); }
 
-/* ============ RESPONSIVE ============
-   No order override here anymore — the card order in HTML (Fast Track
-   first, Mastery second) is now preserved on both desktop and mobile. */
+/* ============ RESPONSIVE ============ */
 .lg-only { display: inline; }
 
 @media (max-width: 980px) {
@@ -715,6 +712,15 @@ fieldset { border: none; padding: 0; margin: 0 0 20px 0; }
   .container { padding: 0 18px; }
   .form-row { grid-template-columns: 1fr; gap: 16px; }
   .course-toggle-group { flex-direction: column; }
+  .course-toggle { width: 100%; min-height: 54px; }
+  .course-toggle-group .course-toggle + .course-toggle::before {
+    left: 10%;
+    right: 10%;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+  }
   .register-form { padding: 28px 22px; }
   .price-card { padding: 32px 24px; }
   .coupon-input-row { flex-direction: column; }
