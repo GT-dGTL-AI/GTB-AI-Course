@@ -7,7 +7,7 @@
 ========================================================= */
 
 // Your deployed Apps Script Web App URL (kept from previous working setup)
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIcQB6B99fi_hrk1mLypt6ZyQKoh8TmKvJF_UfuvZgrbr3Z-ZgMNk1dITx8pDXp-wZ/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJ8HxGhoWAMAazasQfKXmshCuwAHEbxx3lmJmL-4XwC0AQ5NEeAA81Mxhu8zM4uuDv/exec";
 
 document.addEventListener('DOMContentLoaded', () => {
   initHeaderScroll();
@@ -202,7 +202,6 @@ function initFormSubmit() {
       fullName: form.fullName.value.trim(),
       email: form.email.value.trim(),
       phone: form.phone.value.trim(),
-      city: form.city.value.trim(),
       college: form.college.value.trim(),
       degree: form.degree.value.trim(),
       selectedPlan: selectedPlanRadio ? selectedPlanRadio.value : '',
