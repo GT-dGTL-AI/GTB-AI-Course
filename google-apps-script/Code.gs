@@ -7,6 +7,11 @@
  * downloaded/exported as .csv at any time via File > Download > CSV,
  * or read programmatically. No separate database is required.
  *
+ * UPDATED: the registration form now collects City in addition to the
+ * previous fields, so the column list below has been updated to match.
+ * If you already have data in your sheet from before this change, the
+ * old rows will simply show a blank City column — that's expected.
+ *
  * SETUP:
  * 1. Create a new Google Sheet, name the first tab exactly: Registrations
  * 2. Extensions > Apps Script, paste this file in as Code.gs
@@ -16,6 +21,13 @@
  *      - Execute as: Me
  *      - Who has access: Anyone
  * 5. Copy the deployment /exec URL into js/main.js -> APPS_SCRIPT_URL
+ *
+ * If you're updating an EXISTING deployment (script already live):
+ *   - Paste this updated code over your old Code.gs
+ *   - Run `setupSheetHeaders` again to refresh the header row with the
+ *     new "City" column
+ *   - Go to Deploy > Manage deployments > pencil icon > New version,
+ *     so the live /exec URL actually runs this updated code
  */
 
 const SHEET_NAME = 'Registrations';
@@ -25,8 +37,9 @@ const COLUMNS = [
   'Full Name',
   'Email',
   'Phone',
-  'College / University',
-  'Degree / Course Pursuing',
+  'City',
+  'College Name',
+  'Degree',
   'Selected Course',
   'Coupon Code',
   'Coupon Applied',
@@ -72,13 +85,12 @@ function doPost(e) {
       data.fullName || '',
       data.email || '',
       data.phone || '',
+      data.city || '',
       data.college || '',
       data.degree || '',
       data.selectedPlan || '',
-      data.basePrice || '',
       data.couponCode || '',
       data.couponApplied || 'No',
-      data.finalPrice || '',
       data.submittedAt || ''
     ];
 
