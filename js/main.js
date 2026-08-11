@@ -1,15 +1,13 @@
 /* =========================================================
    GT BHARAT — main.js
-   Scroll animations, course sync, coupon logic, form submit
-   to Google Apps Script Web App, success modal + confetti.
+   Scroll animations, course sync (card body + button + form
+   toggle all stay in sync), coupon logic, form submit to
+   Google Apps Script Web App, success modal + confetti.
    NO PRICING SHOWN — interest-only registration.
 ========================================================= */
 
-// ------------------------------------------------------------------
-// >>> REQUIRED CONFIG: paste your deployed Apps Script Web App URL <<<
-// Example: "https://script.google.com/macros/s/AKfycb.../exec"
-// ------------------------------------------------------------------
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8hHhsqWvXo0kcbCmYjmw5VrVJttBVd1aSqD52uyDU879UfYGmnbbAW4lDei67b980/exec";
+// Your deployed Apps Script Web App URL (kept from previous working setup)
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIcQB6B99fi_hrk1mLypt6ZyQKoh8TmKvJF_UfuvZgrbr3Z-ZgMNk1dITx8pDXp-wZ/exec";
 
 document.addEventListener('DOMContentLoaded', () => {
   initHeaderScroll();
@@ -48,15 +46,9 @@ function initRevealOnScroll() {
 
 /* ---------------- Scroll-spy dots for section navigation ----------------
    Uses a thin horizontal "center band" of the viewport (rootMargin trick)
-   instead of a percentage-of-target-height threshold. A percentage
-   threshold (e.g. 0.4) requires 40% of a section's own height to be
-   visible before it activates — for a long section like Register that
-   is taller than the viewport, that never happens while scrolling
-   through it normally, so its dot never lit up. The center-band
-   approach activates a section as soon as the middle of the viewport
-   passes through it, regardless of the section's height. A bottom-of-
-   page fallback is added too, in case the last section's content ends
-   before it ever crosses the exact center line on very tall screens. */
+   instead of a percentage-of-target-height threshold, so a tall section
+   like Register still lights up its dot correctly. A bottom-of-page
+   fallback force-activates the last dot when scrolled all the way down. */
 function initScrollDots() {
   const sections = document.querySelectorAll('main .section');
   const dots = document.querySelectorAll('.dot');
@@ -85,25 +77,76 @@ function initScrollDots() {
   }, { passive: true });
 }
 
-/* ---------------- Sync "Choose course" buttons in course cards
-   with the radio buttons in the registration form, then scroll down ---------------- */
+/* ---------------- Course selection sync ----------------
+   Three ways a user can pick a course, all kept in sync:
+   1) Clicking anywhere on a course card body (.price-card)
+   2) Clicking the "Choose ___" button inside a card (also scrolls to form)
+   3) Clicking a toggle option directly inside the registration form
+   Selecting via #1 or #2 highlights the chosen card with a purple
+   outline (like the hover state) and checks the matching radio in the
+   compact toggle at the top of the registration form. ---------------- */
 function initCourseSync() {
+  const cards = document.querySelectorAll('.price-card[data-course]');
   const buttons = document.querySelectorAll('.select-course-btn');
+
+  function selectCourse(courseKey) {
+    const radio = document.querySelector(`.course-toggle[data-course-radio="${courseKey}"] input`);
+    if (radio) {
+      radio.checked = true;
+      radio.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    cards.forEach(card => {
+      const isMatch = card.dataset.course === courseKey;
+      card.classList.toggle('is-selected', isMatch);
+      card.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+    });
+    const legend = document.querySelector('.course-select-field .field-error');
+    if (legend) legend.remove();
+  }
+
+  // Card body click/keyboard selection (no auto-scroll — just selects)
+  cards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.select-course-btn')) return; // let button handler manage this click
+      selectCourse(card.dataset.course);
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectCourse(card.dataset.course);
+      }
+    });
+  });
+
+  // "Choose ___" button: selects AND scrolls down to the registration form
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
-      const course = btn.dataset.selectCourse; // "3month" | "1year"
-      const radio = document.querySelector(`.course-radio[data-course-radio="${course}"] input`);
-      if (radio) {
-        radio.checked = true;
-        radio.dispatchEvent(new Event('change', { bubbles: true }));
-      }
+      selectCourse(btn.dataset.selectCourse);
       document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // If the user picks a course directly inside the form toggle, mirror it
+  // back onto the course cards above for visual consistency.
+  document.querySelectorAll('input[name="selectedPlan"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const label = e.target.closest('.course-toggle');
+      const courseKey = label ? label.dataset.courseRadio : null;
+      if (courseKey) {
+        cards.forEach(card => {
+          const isMatch = card.dataset.course === courseKey;
+          card.classList.toggle('is-selected', isMatch);
+          card.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+        });
+      }
+      const legend = document.querySelector('.course-select-field .field-error');
+      if (legend) legend.remove();
     });
   });
 }
 
 /* ---------------- Coupon logic ---------------- */
-const VALID_COUPON = 'GTBHARATSAVE';
+const VALID_COUPON = 'DGTLSAVE';
 let couponApplied = false;
 
 function initCoupon() {
@@ -159,6 +202,7 @@ function initFormSubmit() {
       fullName: form.fullName.value.trim(),
       email: form.email.value.trim(),
       phone: form.phone.value.trim(),
+      city: form.city.value.trim(),
       college: form.college.value.trim(),
       degree: form.degree.value.trim(),
       selectedPlan: selectedPlanRadio ? selectedPlanRadio.value : '',
@@ -185,6 +229,10 @@ function initFormSubmit() {
       openSuccessModal();
       form.reset();
       resetCouponUI();
+      document.querySelectorAll('.price-card.is-selected').forEach(card => {
+        card.classList.remove('is-selected');
+        card.setAttribute('aria-pressed', 'false');
+      });
     } catch (err) {
       console.error('Submission failed:', err);
       setSubmitting(false);
